@@ -1,12 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:provider/provider.dart';
 import 'package:sizer/sizer.dart';
 import 'package:test/core/constants/app_colors.dart';
 import 'package:test/core/constants/app_strings.dart';
 import 'package:test/core/constants/app_text_styles.dart';
 import 'package:test/core/widgets/custom_app_bar.dart';
 import 'package:test/core/widgets/rating_bar.dart';
+import 'package:test/core/widgets/shimmer_cached_image.dart';
 import 'package:test/models/product_model.dart';
+
+import '../../providers/ProductsProvider/products_provider.dart';
 
 class ProductDetailsScreen extends StatelessWidget {
   const ProductDetailsScreen({
@@ -33,7 +37,12 @@ class ProductDetailsScreen extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             SizedBox(height: 1.h),
-            Image.network(product.thumbnail),
+            ShimmerCachedImage(
+              imageUrl: product.thumbnail,
+              height: 25.h,
+              width: 100.w,
+              fit: BoxFit.cover,
+            ),
             SizedBox(height: 3.h),
             ProductDetails(
               product: product,
@@ -52,6 +61,9 @@ class ProductDetails extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final provider =
+        Provider.of<ProductProvider>(context); // Access ProductProvider
+
     return Padding(
       padding: EdgeInsets.symmetric(horizontal: 4.w),
       child: Column(
@@ -64,10 +76,19 @@ class ProductDetails extends StatelessWidget {
                 "${AppStrings.productDetails}:",
                 style: AppTextStyles.h2(fontSize: 18),
               ),
-              Icon(
-                Icons.favorite_border_rounded,
-                size: 9.w,
-                color: AppColors.blackPrimary,
+              IconButton(
+                icon: Icon(
+                  provider.favoriteProducts.contains(product)
+                      ? Icons.favorite
+                      : Icons.favorite_border_rounded,
+                  size: 9.w,
+                  color: provider.favoriteProducts.contains(product)
+                      ? AppColors.redPrimary
+                      : AppColors.blackPrimary,
+                ),
+                onPressed: () {
+                  provider.toggleFavorite(product); // Toggle favorite status
+                },
               ),
             ],
           ),
@@ -90,7 +111,7 @@ class ProductDetails extends StatelessWidget {
           Padding(
             padding: EdgeInsets.only(left: 1.w),
             child: Text(
-              'Lorem Ipsum är en utfyllnadstext från tryck- och förlagsindustrin. Lorem ipsum har varit standard ända.',
+              product.description,
               style: AppTextStyles.b1(),
             ),
           )

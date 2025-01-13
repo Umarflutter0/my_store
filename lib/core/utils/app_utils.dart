@@ -223,4 +223,14 @@ class AppUtils {
       {required Color color, required double opacity}) {
     return color.withAlpha((opacity * 255).toInt());
   }
+
+  static String extractCategoryEndpoint(String url) {
+    const String baseUrl = 'https://dummyjson.com/products';
+
+    if (url.startsWith(baseUrl)) {
+      return url.substring(baseUrl.length);
+    }
+
+    return url;
+  }
 }

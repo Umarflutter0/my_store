@@ -18,7 +18,9 @@ class MainScreen extends StatelessWidget {
   MainScreen({super.key});
 
   final pages = [
-    ProductsScreen(),
+    ProductsScreen(
+      values: {'endPoint': '', 'category': ''},
+    ),
     CategoriesScreen(),
     FavouritesScreen(),
     ProfileScreen(),

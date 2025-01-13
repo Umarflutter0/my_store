@@ -1,42 +1,8 @@
-// import 'package:flutter/material.dart';
-// import 'package:sizer/sizer.dart';
-// import 'package:test/core/constants/app_assets.dart';
-// import 'package:test/core/constants/app_colors.dart';
-// import 'package:test/core/constants/app_text_styles.dart';
-// import 'package:test/core/utils/app_utils.dart';
-// import 'package:test/core/widgets/total_results_text.dart';
-//
-// import '../../core/widgets/app_search_box.dart';
-//
-// class CategoriesScreen extends StatelessWidget {
-//   const CategoriesScreen({super.key});
-//
-//   @override
-//   Widget build(BuildContext context) {
-//     return SingleChildScrollView(
-//       padding: EdgeInsets.symmetric(horizontal: 6.w),
-//       child: Column(
-//         crossAxisAlignment: CrossAxisAlignment.start,
-//         children: [
-//           AppSearchBox(),
-//           SizedBox(height: 1.25.h),
-//           TotalResultsText(count: '234'),
-//           ProductsGrid(
-//             products: [
-//               {'title': 'Laptops', 'image': AppAssets.images.img},
-//               {'title': 'Naglar', 'image': 'assets/images/image 4.png'},
-//             ],
-//           ),
-//         ],
-//       ),
-//     );
-//   }
-// }
-//
-
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import 'package:sizer/sizer.dart';
+import 'package:test/config/routes/routes_names.dart';
 import 'package:test/core/constants/app_assets.dart';
 import 'package:test/core/constants/app_colors.dart';
 import 'package:test/core/constants/app_text_styles.dart';
@@ -52,48 +18,43 @@ class CategoriesScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Categories'),
-      ),
-      body: ChangeNotifierProvider(
-        create: (_) => CategoryProvider()..fetchCategories(),
-        child: Consumer<CategoryProvider>(
-          builder: (context, categoryProvider, child) {
-            // Loading indicator if no categories are loaded yet
-            if (categoryProvider.isLoading &&
-                categoryProvider.categories.isEmpty) {
-              return const Center(child: CircularProgressIndicator());
-            }
+    return ChangeNotifierProvider(
+      create: (_) => CategoryProvider()..fetchCategories(),
+      child: Consumer<CategoryProvider>(
+        builder: (context, categoryProvider, child) {
+          // Loading indicator if no categories are loaded yet
+          if (categoryProvider.isLoading &&
+              categoryProvider.categories.isEmpty) {
+            return const Center(child: CircularProgressIndicator());
+          }
 
-            return NotificationListener<ScrollNotification>(
-              onNotification: (scrollNotification) {
-                // Lazy loading logic when the user reaches the bottom
-                if (scrollNotification.metrics.pixels ==
-                        scrollNotification.metrics.maxScrollExtent &&
-                    !categoryProvider.isLoading &&
-                    categoryProvider.hasMore) {
-                  categoryProvider.fetchCategories(isLoadMore: true);
-                }
-                return false;
-              },
-              child: SingleChildScrollView(
-                padding: EdgeInsets.symmetric(horizontal: 6.w),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    AppSearchBox(),
-                    SizedBox(height: 1.25.h),
-                    TotalResultsText(
-                      count: categoryProvider.totalCategories.toString(),
-                    ),
-                    ProductsGrid(products: categoryProvider.categories),
-                  ],
-                ),
+          return NotificationListener<ScrollNotification>(
+            onNotification: (scrollNotification) {
+              // Lazy loading logic when the user reaches the bottom
+              if (scrollNotification.metrics.pixels ==
+                      scrollNotification.metrics.maxScrollExtent &&
+                  !categoryProvider.isLoading &&
+                  categoryProvider.hasMore) {
+                categoryProvider.fetchCategories(isLoadMore: true);
+              }
+              return false;
+            },
+            child: SingleChildScrollView(
+              padding: EdgeInsets.symmetric(horizontal: 6.w),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  AppSearchBox(),
+                  SizedBox(height: 1.25.h),
+                  TotalResultsText(
+                    count: categoryProvider.totalCategories.toString(),
+                  ),
+                  ProductsGrid(products: categoryProvider.categories),
+                ],
               ),
-            );
-          },
-        ),
+            ),
+          );
+        },
       ),
     );
   }
@@ -122,18 +83,26 @@ class ProductsGrid extends StatelessWidget {
         return Stack(
           alignment: Alignment.bottomLeft,
           children: [
-            Container(
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(10),
-                image: DecorationImage(
-                  image: AssetImage(AppAssets.images.img),
-                  fit: BoxFit.cover,
-                  colorFilter: ColorFilter.mode(
-                    AppUtils.getColorWithOpacity(
-                      color: AppColors.blackPrimary,
-                      opacity: 0.25,
+            GestureDetector(
+              onTap: () {
+                context.push(RoutesName.productsScreen, extra: {
+                  'url': AppUtils.extractCategoryEndpoint(product.url),
+                  'category': product.name
+                });
+              },
+              child: Container(
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(10),
+                  image: DecorationImage(
+                    image: AssetImage(AppAssets.images.img),
+                    fit: BoxFit.cover,
+                    colorFilter: ColorFilter.mode(
+                      AppUtils.getColorWithOpacity(
+                        color: AppColors.blackPrimary,
+                        opacity: 0.25,
+                      ),
+                      BlendMode.darken,
                     ),
-                    BlendMode.darken,
                   ),
                 ),
               ),

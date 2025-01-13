@@ -4,6 +4,7 @@ import 'package:test/config/routes/routes_names.dart';
 import '../../models/product_model.dart';
 import '../../views/MainScreen/main_screen.dart';
 import '../../views/ProductsScreen/product_details_screen.dart';
+import '../../views/ProductsScreen/products_screen.dart';
 import '../../views/SplashScreen/splash_screen.dart';
 
 final GoRouter routes = GoRouter(
@@ -16,6 +17,18 @@ final GoRouter routes = GoRouter(
     GoRoute(
       path: RoutesName.mainScreen,
       builder: (context, state) => MainScreen(),
+    ),
+    GoRoute(
+      path: RoutesName.productsScreen,
+      builder: (context, state) {
+        final map = state.extra as Map<String, dynamic>;
+        return ProductsScreen(
+          values: {
+            'endPoint': map['url'],
+            'category': map['category'],
+          },
+        );
+      },
     ),
     GoRoute(
       path: RoutesName.productDetails,

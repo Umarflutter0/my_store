@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:sizer/sizer.dart';
 import 'package:test/providers/BottomNavProvider/bottom_nav_provider.dart';
+import 'package:test/providers/ProductsProvider/products_provider.dart';
 
 import 'config/routes/routes.dart';
 import 'config/themes/app_theme.dart';
@@ -20,6 +21,7 @@ class MyApp extends StatelessWidget {
         return MultiProvider(
           providers: [
             ChangeNotifierProvider(create: (_) => BottomNavProvider()),
+            ChangeNotifierProvider(create: (_) => ProductProvider()),
           ],
           child: MaterialApp.router(
             debugShowCheckedModeBanner: false,
