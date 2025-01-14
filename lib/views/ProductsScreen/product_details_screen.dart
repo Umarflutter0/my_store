@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import 'package:sizer/sizer.dart';
@@ -6,6 +7,7 @@ import 'package:test/core/constants/app_colors.dart';
 import 'package:test/core/constants/app_strings.dart';
 import 'package:test/core/constants/app_text_styles.dart';
 import 'package:test/core/widgets/custom_app_bar.dart';
+import 'package:test/core/widgets/fav_icon.dart';
 import 'package:test/core/widgets/rating_bar.dart';
 import 'package:test/core/widgets/shimmer_cached_image.dart';
 import 'package:test/models/product_model.dart';
@@ -76,20 +78,7 @@ class ProductDetails extends StatelessWidget {
                 "${AppStrings.productDetails}:",
                 style: AppTextStyles.h2(fontSize: 18),
               ),
-              IconButton(
-                icon: Icon(
-                  provider.favoriteProducts.contains(product)
-                      ? Icons.favorite
-                      : Icons.favorite_border_rounded,
-                  size: 9.w,
-                  color: provider.favoriteProducts.contains(product)
-                      ? AppColors.redPrimary
-                      : AppColors.blackPrimary,
-                ),
-                onPressed: () {
-                  provider.toggleFavorite(product); // Toggle favorite status
-                },
-              ),
+              FavIcon(provider: provider, product: product),
             ],
           ),
           SizedBox(height: 0.5.h),
@@ -114,6 +103,83 @@ class ProductDetails extends StatelessWidget {
               product.description,
               style: AppTextStyles.b1(),
             ),
+          ),
+          SizedBox(height: 2.h),
+          // MasonryGridView.builder(
+          //   shrinkWrap: true,
+          //   mainAxisSpacing: 2.5.h,
+          //   physics: NeverScrollableScrollPhysics(),
+          //   crossAxisSpacing: 5.w,
+          //   itemCount: product.images.length + 1,
+          //   gridDelegate: SliverSimpleGridDelegateWithFixedCrossAxisCount(
+          //     crossAxisCount: 2,
+          //   ),
+          //   itemBuilder: (context, index) {
+          //     if (kDebugMode) {
+          //       print(product.images);
+          //     }
+          //     if (index == 0) {
+          //       return Text(
+          //         AppStrings.productGallery,
+          //         style: AppTextStyles.h2(fontSize: 16),
+          //       );
+          //     }
+          //     return Image.network(
+          //       product.images[index - 1], // Adjust index for images
+          //       fit: BoxFit.cover,
+          //     );
+          //   },
+          // )
+          MasonryGridView.builder(
+            shrinkWrap: true,
+            mainAxisSpacing: 2.5.h,
+            physics: NeverScrollableScrollPhysics(),
+            crossAxisSpacing: 5.w,
+            itemCount: product.images.length + 1,
+            // Add 1 for the text at index 0
+            gridDelegate: SliverSimpleGridDelegateWithFixedCrossAxisCount(
+              crossAxisCount: 2,
+            ),
+            itemBuilder: (context, index) {
+              if (index == 0) {
+                return Text(
+                  AppStrings.productGallery,
+                  style: AppTextStyles.h2(fontSize: 16),
+                );
+              }
+              return Stack(
+                alignment: Alignment.center,
+                children: [
+                  Image.network(
+                    product.images[index - 1],
+                    fit: BoxFit.cover,
+                    loadingBuilder: (context, child, loadingProgress) {
+                      if (loadingProgress == null) {
+                        return child; // Image is fully loaded
+                      }
+                      return SizedBox(
+                        width: double.infinity,
+                        height: 20.h,
+                        child: Center(
+                          child: CircularProgressIndicator(
+                            color: AppColors.blackPrimary,
+                            value: loadingProgress.expectedTotalBytes != null
+                                ? loadingProgress.cumulativeBytesLoaded /
+                                    loadingProgress.expectedTotalBytes!
+                                : null,
+                          ),
+                        ),
+                      );
+                    },
+                    errorBuilder: (context, error, stackTrace) => Icon(
+                      Icons.error,
+                      size: 50,
+                      color: Colors.red,
+                    ),
+                  ),
+                ],
+              );
+            },
           )
         ],
       ),
@@ -144,11 +210,11 @@ class ProductInfoRow extends StatelessWidget {
             style: AppTextStyles.h2(),
           ),
           SizedBox(width: 3.w),
-          Text(
-            value,
-            style: AppTextStyles.b1(),
-          ),
-          if (rating) SizedBox(width: 1.5.w),
+          if (!rating)
+            Text(
+              value,
+              style: AppTextStyles.b1(),
+            ),
           if (rating) RatingBar(rating: double.tryParse(value)!)
         ],
       ),

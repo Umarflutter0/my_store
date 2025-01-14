@@ -1,9 +1,10 @@
-// import 'dart:convert';
-//
-// import 'package:flutter/material.dart';
-//
-// import '../../core/network/api_interceptor.dart';
-// import '../../models/category_model.dart';
+import 'dart:convert';
+
+import 'package:flutter/material.dart';
+
+import '../../core/network/api_interceptor.dart';
+import '../../models/category_model.dart';
+
 //
 // class CategoryProvider with ChangeNotifier {
 //   final ApiInterceptor _apiInterceptor =
@@ -12,14 +13,21 @@
 //   bool _isLoading = false;
 //   int _totalCategories = 0;
 //
+//   // Lazy loading variables
+//   int _currentPage = 0;
+//   final int _limit = 10;
+//   bool _hasMore = true; // To check if more data is available
+//
 //   List<CategoryModel> get categories => _categories;
 //
 //   bool get isLoading => _isLoading;
 //
 //   int get totalCategories => _totalCategories;
 //
-//   Future<void> fetchCategories() async {
-//     if (_isLoading) return;
+//   bool get hasMore => _hasMore;
+//
+//   Future<void> fetchCategories({bool isLoadMore = false}) async {
+//     if (_isLoading || !_hasMore) return;
 //
 //     _isLoading = true;
 //     notifyListeners();
@@ -31,11 +39,30 @@
 //       if (response.statusCode == 200) {
 //         final data = jsonDecode(response.body);
 //
-//         // Assuming the API returns an array of categories
-//         _categories =
+//         List<CategoryModel> allCategories =
 //             (data as List).map((item) => CategoryModel.fromJson(item)).toList();
 //
-//         _totalCategories = _categories.length;
+//         _totalCategories = allCategories.length;
+//
+//         int startIndex = _currentPage * _limit;
+//         int endIndex = startIndex + _limit;
+//
+//         if (startIndex < _totalCategories) {
+//           List<CategoryModel> newCategories = allCategories.sublist(startIndex,
+//               endIndex > _totalCategories ? _totalCategories : endIndex);
+//
+//           if (isLoadMore) {
+//             _categories.addAll(newCategories);
+//           } else {
+//             _categories = newCategories;
+//           }
+//
+//           _currentPage++;
+//
+//           if (_categories.length >= _totalCategories) {
+//             _hasMore = false; // No more data to load
+//           }
+//         }
 //       }
 //     } catch (error) {
 //       // Handle error using ErrorHandler
@@ -45,26 +72,23 @@
 //     }
 //   }
 // }
-import 'dart:convert';
-
-import 'package:flutter/material.dart';
-
-import '../../core/network/api_interceptor.dart';
-import '../../models/category_model.dart';
 
 class CategoryProvider with ChangeNotifier {
   final ApiInterceptor _apiInterceptor =
       ApiInterceptor(baseUrl: 'https://dummyjson.com');
   List<CategoryModel> _categories = [];
+  List<CategoryModel> _filteredCategories = [];
   bool _isLoading = false;
   int _totalCategories = 0;
 
   // Lazy loading variables
   int _currentPage = 0;
   final int _limit = 10;
-  bool _hasMore = true; // To check if more data is available
+  bool _hasMore = true;
 
   List<CategoryModel> get categories => _categories;
+
+  List<CategoryModel> get filteredCategories => _filteredCategories;
 
   bool get isLoading => _isLoading;
 
@@ -103,10 +127,11 @@ class CategoryProvider with ChangeNotifier {
             _categories = newCategories;
           }
 
+          _filteredCategories = _categories; // Initialize filtered list
           _currentPage++;
 
           if (_categories.length >= _totalCategories) {
-            _hasMore = false; // No more data to load
+            _hasMore = false;
           }
         }
       }
@@ -116,5 +141,17 @@ class CategoryProvider with ChangeNotifier {
       _isLoading = false;
       notifyListeners();
     }
+  }
+
+  void filterCategories(String query) {
+    if (query.isEmpty) {
+      _filteredCategories = _categories;
+    } else {
+      _filteredCategories = _categories
+          .where((category) =>
+              category.name.toLowerCase().contains(query.toLowerCase()))
+          .toList();
+    }
+    notifyListeners();
   }
 }

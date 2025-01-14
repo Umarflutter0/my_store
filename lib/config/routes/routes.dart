@@ -8,7 +8,7 @@ import '../../views/ProductsScreen/products_screen.dart';
 import '../../views/SplashScreen/splash_screen.dart';
 
 final GoRouter routes = GoRouter(
-  initialLocation: RoutesName.mainScreen,
+  initialLocation: RoutesName.splashScreen,
   routes: [
     GoRoute(
       path: RoutesName.splashScreen,

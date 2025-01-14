@@ -15,8 +15,12 @@ class AppIcons {
   final String favourite = 'assets/icons/favourite.svg';
   final String product = 'assets/icons/pro.svg';
   final String profile = 'assets/icons/profile.svg';
+  final List<String> profileIcons = [
+    'assets/icons/setting.svg',
+    'assets/icons/mina.svg',
+    'assets/icons/support.svg',
+  ];
 
-  // Use a getter to avoid initialization issues
   List<String> get navbarIcons => [
         product,
         category,

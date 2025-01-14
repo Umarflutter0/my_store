@@ -68,18 +68,7 @@ class ProductBox extends StatelessWidget {
                 ),
               ],
             ),
-            Row(
-              children: [
-                Text(
-                  product.rating.toString(),
-                  style: AppTextStyles.h2(
-                    fontSize: 13,
-                    lineHeight: 1.25,
-                  ),
-                ),
-                RatingBar(rating: product.rating)
-              ],
-            ),
+            RatingBar(rating: product.rating),
             SizedBox(height: 1.h),
             Text(
               'By ${product.brand}',

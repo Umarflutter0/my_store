@@ -11,6 +11,7 @@ import 'package:test/models/category_model.dart';
 
 import '../../core/utils/app_utils.dart';
 import '../../core/widgets/app_search_box.dart';
+import '../../core/widgets/loader.dart';
 import '../../providers/CategoryProvider/category_provider.dart';
 
 class CategoriesScreen extends StatelessWidget {
@@ -18,43 +19,54 @@ class CategoriesScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final searchController = TextEditingController();
     return ChangeNotifierProvider(
       create: (_) => CategoryProvider()..fetchCategories(),
-      child: Consumer<CategoryProvider>(
-        builder: (context, categoryProvider, child) {
-          // Loading indicator if no categories are loaded yet
-          if (categoryProvider.isLoading &&
-              categoryProvider.categories.isEmpty) {
-            return const Center(child: CircularProgressIndicator());
-          }
-
-          return NotificationListener<ScrollNotification>(
-            onNotification: (scrollNotification) {
-              // Lazy loading logic when the user reaches the bottom
-              if (scrollNotification.metrics.pixels ==
-                      scrollNotification.metrics.maxScrollExtent &&
-                  !categoryProvider.isLoading &&
-                  categoryProvider.hasMore) {
-                categoryProvider.fetchCategories(isLoadMore: true);
-              }
-              return false;
-            },
-            child: SingleChildScrollView(
-              padding: EdgeInsets.symmetric(horizontal: 6.w),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  AppSearchBox(),
-                  SizedBox(height: 1.25.h),
-                  TotalResultsText(
-                    count: categoryProvider.totalCategories.toString(),
-                  ),
-                  ProductsGrid(products: categoryProvider.categories),
-                ],
-              ),
-            ),
-          );
+      child: RefreshIndicator(
+        color: AppColors.blackPrimary,
+        onRefresh: () async {
+          await CategoryProvider().fetchCategories();
         },
+        child: Consumer<CategoryProvider>(
+          builder: (context, categoryProvider, child) {
+            if (categoryProvider.isLoading &&
+                categoryProvider.filteredCategories.isEmpty) {
+              return Loader();
+            }
+
+            return NotificationListener<ScrollNotification>(
+              onNotification: (scrollNotification) {
+                if (scrollNotification.metrics.pixels ==
+                        scrollNotification.metrics.maxScrollExtent &&
+                    !categoryProvider.isLoading &&
+                    categoryProvider.hasMore) {
+                  categoryProvider.fetchCategories(isLoadMore: true);
+                }
+                return false;
+              },
+              child: SingleChildScrollView(
+                padding: EdgeInsets.symmetric(horizontal: 6.w),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    AppSearchBox(
+                      controller: searchController,
+                      onSearchChanged: (String value) {
+                        categoryProvider.filterCategories(value);
+                      },
+                    ),
+                    SizedBox(height: 1.25.h),
+                    TotalResultsText(
+                      count:
+                          categoryProvider.filteredCategories.length.toString(),
+                    ),
+                    ProductsGrid(products: categoryProvider.filteredCategories),
+                  ],
+                ),
+              ),
+            );
+          },
+        ),
       ),
     );
   }

@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:test/config/routes/routes_names.dart';
 
+import '../../config/routes/routes_names.dart';
+import '../../core/constants/app_assets.dart';
 import 'components/splash_content_overlay.dart';
-import 'components/splash_image.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
@@ -13,19 +13,30 @@ class SplashScreen extends StatefulWidget {
 }
 
 class _SplashScreenState extends State<SplashScreen> {
+  @override
+  void initState() {
+    super.initState();
+    _navigateToMainScreen();
+  }
+
+  Future<void> _navigateToMainScreen() async {
+    await Future.delayed(Duration(seconds: 2));
+    if (mounted) {
+      context.go(RoutesName.mainScreen);
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
-    WidgetsBinding.instance.addPostFrameCallback((_){
-      Future.delayed(Duration(seconds: 4));
-      context.go(RoutesName.mainScreen);
-    });
-    return SafeArea(
-      child: Stack(
+    return Scaffold(
+      body: Stack(
         alignment: Alignment.topCenter,
         fit: StackFit.expand,
         children: [
-          SplashImage(),
+          Image.asset(
+            AppAssets.images.splash,
+            fit: BoxFit.cover,
+          ),
           SplashContentOverlay(),
         ],
       ),
