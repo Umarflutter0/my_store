@@ -30,72 +30,62 @@ class ProductsScreen extends StatelessWidget {
                 icon: Icon(Icons.arrow_back_ios),
               ),
             ),
-      body: ChangeNotifierProvider(
-        create: (_) => ProductProvider()
-          ..fetchProducts(
-              endPoint: values['endPoint'].isEmpty
-                  ? '?limit=100'
-                  : values['endPoint']),
-        child: RefreshIndicator(
-          color: AppColors.blackPrimary,
-          onRefresh: () async {
-            await ProductProvider().fetchProducts(
-                endPoint: values['endPoint'].isEmpty
-                    ? '?limit=100'
-                    : values['endPoint']);
-          },
-          child: Consumer<ProductProvider>(
-            builder: (context, productProvider, child) {
-              if (productProvider.isLoading &&
-                  productProvider.products.isEmpty) {
-                return Loader();
-              }
+      body: RefreshIndicator(
+        color: AppColors.blackPrimary,
+        onRefresh: () async {
+          await ProductProvider().fetchProducts(endPoint: '?limit=100');
+        },
+        child: Consumer<ProductProvider>(
+          builder: (context, productProvider, child) {
+            if (productProvider.isLoading &&
+                productProvider.filteredProducts.isEmpty) {
+              return Loader();
+            }
 
-              return NotificationListener<ScrollNotification>(
-                onNotification: (scrollNotification) {
-                  if (scrollNotification.metrics.pixels ==
-                          scrollNotification.metrics.maxScrollExtent &&
-                      !productProvider.isLoading) {
-                    productProvider.fetchProducts(
-                        isLoadMore: true,
-                        endPoint: values['endPoint'].isEmpty
-                            ? '?limit=100'
-                            : values['endPoint']);
-                  }
-                  return false;
-                },
-                child: SingleChildScrollView(
-                  padding: EdgeInsets.symmetric(horizontal: 6.w),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      AppSearchBox(
-                        controller: searchController,
-                        onSearchChanged: productProvider.setSearchQuery,
-                      ),
-                      SizedBox(height: 1.25.h),
-                      TotalResultsText(
-                        count: productProvider.totalProducts.toString(),
-                      ),
-                      ListView.builder(
-                        physics: const NeverScrollableScrollPhysics(),
-                        shrinkWrap: true,
-                        itemCount: productProvider.products.length +
-                            (productProvider.isLoading ? 1 : 0),
-                        itemBuilder: (context, index) {
-                          if (index == productProvider.products.length) {
-                            return Loader();
-                          }
-                          final product = productProvider.products[index];
-                          return ProductBox(product: product);
-                        },
-                      ),
-                    ],
-                  ),
+            return NotificationListener<ScrollNotification>(
+              onNotification: (scrollNotification) {
+                if (scrollNotification.metrics.pixels ==
+                        scrollNotification.metrics.maxScrollExtent &&
+                    !productProvider.isLoading) {
+                  productProvider.fetchProducts(
+                      isLoadMore: true,
+                      endPoint: values['endPoint'].isEmpty
+                          ? '?limit=100'
+                          : values['endPoint']);
+                }
+                return false;
+              },
+              child: SingleChildScrollView(
+                padding: EdgeInsets.symmetric(horizontal: 6.w),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    AppSearchBox(
+                      controller: searchController,
+                      onSearchChanged: productProvider.setSearchQuery,
+                    ),
+                    SizedBox(height: 1.25.h),
+                    TotalResultsText(
+                      count: productProvider.filteredProducts.length.toString(),
+                    ),
+                    ListView.builder(
+                      physics: const NeverScrollableScrollPhysics(),
+                      shrinkWrap: true,
+                      itemCount: productProvider.filteredProducts.length +
+                          (productProvider.isLoading ? 1 : 0),
+                      itemBuilder: (context, index) {
+                        if (index == productProvider.filteredProducts.length) {
+                          return Loader();
+                        }
+                        final product = productProvider.filteredProducts[index];
+                        return ProductBox(product: product);
+                      },
+                    ),
+                  ],
                 ),
-              );
-            },
-          ),
+              ),
+            );
+          },
         ),
       ),
     );

@@ -2,6 +2,7 @@ import 'package:go_router/go_router.dart';
 import 'package:test/config/routes/routes_names.dart';
 
 import '../../models/product_model.dart';
+import '../../views/CategoriesScreen/product_from_categories.dart';
 import '../../views/MainScreen/main_screen.dart';
 import '../../views/ProductsScreen/product_details_screen.dart';
 import '../../views/ProductsScreen/products_screen.dart';
@@ -23,6 +24,18 @@ final GoRouter routes = GoRouter(
       builder: (context, state) {
         final map = state.extra as Map<String, dynamic>;
         return ProductsScreen(
+          values: {
+            'endPoint': map['url'],
+            'category': map['category'],
+          },
+        );
+      },
+    ),
+    GoRoute(
+      path: RoutesName.productsFromCategoriesS,
+      builder: (context, state) {
+        final map = state.extra as Map<String, dynamic>;
+        return ProductsFromCategoriesS(
           values: {
             'endPoint': map['url'],
             'category': map['category'],

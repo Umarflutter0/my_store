@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:sizer/sizer.dart';
 import 'package:test/providers/BottomNavProvider/bottom_nav_provider.dart';
+import 'package:test/providers/CategoryProvider/category_provider.dart';
 import 'package:test/providers/ProductsProvider/products_provider.dart';
 
 import 'config/routes/routes.dart';
@@ -21,7 +22,11 @@ class MyApp extends StatelessWidget {
         return MultiProvider(
           providers: [
             ChangeNotifierProvider(create: (_) => BottomNavProvider()),
-            ChangeNotifierProvider(create: (_) => ProductProvider()),
+            ChangeNotifierProvider(create: (_) => CategoryProvider()),
+            ChangeNotifierProvider(
+              create: (_) =>
+                  ProductProvider()..fetchProducts(endPoint: '?limit=100'),
+            ),
           ],
           child: MaterialApp.router(
             debugShowCheckedModeBanner: false,

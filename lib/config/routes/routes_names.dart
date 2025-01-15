@@ -4,4 +4,5 @@ class RoutesName {
   static const String productDetails = '/productDetailsScreen';
   static const String productsScreen = '/productsScreen';
   static const String productByCategory = '/productByCategory';
+  static const String productsFromCategoriesS = '/productsFromCategoriesS';
 }

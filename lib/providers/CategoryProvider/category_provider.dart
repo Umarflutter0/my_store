@@ -96,6 +96,10 @@ class CategoryProvider with ChangeNotifier {
 
   bool get hasMore => _hasMore;
 
+  CategoryProvider() {
+    fetchCategories();
+  }
+
   Future<void> fetchCategories({bool isLoadMore = false}) async {
     if (_isLoading || !_hasMore) return;
 

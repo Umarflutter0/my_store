@@ -18,15 +18,15 @@ class ProductProvider with ChangeNotifier {
   int _totalProducts = 0;
   String _favoriteSearchQuery = ''; // Search query for favorites
 
+  // Filter favorite products by search query
   List<ProductModel> get filteredFavoriteProducts => _favoriteProducts
       .where((product) => product.title
           .toLowerCase()
           .contains(_favoriteSearchQuery.toLowerCase()))
       .toList();
 
-  // Set search query for favorite products and notify listeners
-
-  List<ProductModel> get products => _products
+  // Filter main products by search query
+  List<ProductModel> get filteredProducts => _products
       .where((product) =>
           product.title.toLowerCase().contains(_searchQuery.toLowerCase()))
       .toList();
@@ -37,7 +37,7 @@ class ProductProvider with ChangeNotifier {
 
   List<ProductModel> get favoriteProducts => _favoriteProducts;
 
-  // Set search query and notify listeners
+  // Set search query for main products and notify listeners
   void setSearchQuery(String query) {
     _searchQuery = query;
     notifyListeners();

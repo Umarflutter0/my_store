@@ -20,12 +20,11 @@ class CategoriesScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final searchController = TextEditingController();
-    return ChangeNotifierProvider(
-      create: (_) => CategoryProvider()..fetchCategories(),
-      child: RefreshIndicator(
+    return Consumer<CategoryProvider>(builder: (context, provider, child) {
+      return RefreshIndicator(
         color: AppColors.blackPrimary,
         onRefresh: () async {
-          await CategoryProvider().fetchCategories();
+          await provider.fetchCategories();
         },
         child: Consumer<CategoryProvider>(
           builder: (context, categoryProvider, child) {
@@ -67,8 +66,8 @@ class CategoriesScreen extends StatelessWidget {
             );
           },
         ),
-      ),
-    );
+      );
+    });
   }
 }
 
@@ -97,10 +96,13 @@ class ProductsGrid extends StatelessWidget {
           children: [
             GestureDetector(
               onTap: () {
-                context.push(RoutesName.productsScreen, extra: {
-                  'url': AppUtils.extractCategoryEndpoint(product.url),
-                  'category': product.name
-                });
+                context.push(
+                  RoutesName.productsFromCategoriesS,
+                  extra: {
+                    'url': AppUtils.extractCategoryEndpoint(product.url),
+                    'category': product.name
+                  },
+                );
               },
               child: Container(
                 decoration: BoxDecoration(
